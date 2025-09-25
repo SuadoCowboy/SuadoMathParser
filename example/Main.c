@@ -1,31 +1,43 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "SuadoMathParser.h"
 
-// TODO: "expected x thing but received y"
-// TODO: calc priority
-// TODO: error messages
-
 int main() {
-	char input[256] = {0};
-	for (int i = 0; i < 256; ++i) {
-		input[i] = getchar();
-		if (input[i] == '\n') {
-			input[i] = '\0';
+	char _input[256];
+	smp_Context ctx;
+	double result;
+
+	while (1) {
+		int c, i = 0;
+		while ((c = getchar()) != '\n' && c != EOF && i < 256) {
+			_input[i] = (char)c;
+			++i;
+		}
+		_input[i] = '\0';
+	
+		memset(&ctx.token, 0, sizeof(ctx.token));
+		const char* input = _input;
+		ctx.it = &input;
+	
+		smp_Error e = smp_parse(&ctx, &result);
+		switch (e) {
+		case SMP_ERROR_OKAY:
+			printf("%lf\n", result);
+			break;
+		case SMP_ERROR_INVALID_SYNTAX:
+			printf("Invalid syntax\n");
+			break;
+		case SMP_ERROR_UNEXPECTED_DOT:
+			printf("Unexpected '.'\n");
+			break;
+		case SMP_ERROR_MISSING_OPERATOR:
+			printf("Missing operator\n");
+			break;
+		case SMP_ERROR_MISSING_RIGHT_EXPRESSION:
+			printf("Missing right-side expression\n");
 			break;
 		}
 	}
-
-	smp_Token token;
-	char* it = input;
-	while (next_token(&token, &it)) {
-		switch (token.type) {
-		case SMP_TOKEN_TYPE_UNKNOWN:	printf("unknown  %d\n", token.value); break;
-		case SMP_TOKEN_TYPE_NUMBER:		printf("number   %d\n", token.value); break;
-		case SMP_TOKEN_TYPE_OPERATOR:	printf("operator %c\n", token.value); break;
-		case SMP_TOKEN_TYPE_BRACKET:	printf("bracket  %c\n", token.value); break;
-		}
-	}
-
 	return 0;
 }
