@@ -1,0 +1,5 @@
+add_executable(Example ${PROJECT_SOURCE_DIR}/example/Main.c)
+if (BUILD_SHARED)
+	target_compile_definitions(Example PRIVATE SMP_IMPORT=1)
+endif()
+target_link_libraries(Example SuadoMathParser)
